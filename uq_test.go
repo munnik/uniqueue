@@ -9,9 +9,9 @@ import (
 )
 
 func TestSinglePushAndSinglePop(t *testing.T) {
-	queue := uniqueue.NewUQ[int](2)
-	queue.Back() <- 1
-	got := <-queue.Front()
+	uq := uniqueue.NewUQ[int](2)
+	uq.Back() <- 1
+	got := <-uq.Front()
 	if got != 1 {
 		t.Errorf("Expected 1, got %d", got)
 	}
@@ -20,12 +20,12 @@ func TestSinglePushAndSinglePop(t *testing.T) {
 func TestMultiplePushAndSinglePop(t *testing.T) {
 	var got, expected int
 
-	queue := uniqueue.NewUQ[int](2)
-	queue.Back() <- 1
-	queue.Back() <- 2
+	uq := uniqueue.NewUQ[int](2)
+	uq.Back() <- 1
+	uq.Back() <- 2
 
 	expected = 1
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
@@ -34,33 +34,33 @@ func TestMultiplePushAndSinglePop(t *testing.T) {
 func TestMultiplePushAndMultiplePop(t *testing.T) {
 	var got, expected int
 
-	queue := uniqueue.NewUQ[int](2)
-	queue.Back() <- 1
-	queue.Back() <- 2
-	queue.Back() <- 3
+	uq := uniqueue.NewUQ[int](2)
+	uq.Back() <- 1
+	uq.Back() <- 2
+	uq.Back() <- 3
 
 	expected = 1
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 
 	expected = 2
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 
-	queue.Back() <- 4
+	uq.Back() <- 4
 
 	expected = 3
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 
 	expected = 4
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
@@ -69,13 +69,13 @@ func TestMultiplePushAndMultiplePop(t *testing.T) {
 func TestChannelClose(t *testing.T) {
 	var got, expected int
 
-	queue := uniqueue.NewUQ[int](5)
+	uq := uniqueue.NewUQ[int](5)
 
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 	go func() {
 		expected = 1
-		for got = range queue.Front() {
+		for got = range uq.Front() {
 			if got != expected {
 				t.Errorf("Expected %d, got %d", expected, got)
 			}
@@ -83,43 +83,43 @@ func TestChannelClose(t *testing.T) {
 		}
 		wg.Done()
 	}()
-	queue.Back() <- 1
-	queue.Back() <- 2
-	queue.Back() <- 3
-	close(queue.Back())
+	uq.Back() <- 1
+	uq.Back() <- 2
+	uq.Back() <- 3
+	close(uq.Back())
 	wg.Wait()
 }
 
 func TestChannelUniqueness(t *testing.T) {
 	var got, expected int
 
-	queue := uniqueue.NewUQ[int](2)
+	uq := uniqueue.NewUQ[int](2)
 	go func() {
-		queue.Back() <- 1
-		queue.Back() <- 2
-		queue.Back() <- 3
-		queue.Back() <- 1
-		queue.Back() <- 1
-		queue.Back() <- 3
+		uq.Back() <- 1
+		uq.Back() <- 2
+		uq.Back() <- 3
+		uq.Back() <- 1
+		uq.Back() <- 1
+		uq.Back() <- 3
 	}()
 
 	expected = 1
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 	expected = 2
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 	expected = 3
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 
-	if len(queue.Front()) != 0 {
+	if len(uq.Front()) != 0 {
 		t.Errorf("Expected empty channel")
 	}
 }
@@ -127,71 +127,71 @@ func TestChannelUniqueness(t *testing.T) {
 func TestRemove(t *testing.T) {
 	var got, expected int
 
-	queue := uniqueue.NewUQ[int](2)
+	uq := uniqueue.NewUQ[int](2)
 	go func() {
-		queue.Back() <- 1
-		queue.Back() <- 2
-		queue.Back() <- 3
-		queue.RemoveUnique(1)
-		queue.Back() <- 1
-		queue.Back() <- 1
-		queue.Back() <- 3
+		uq.Back() <- 1
+		uq.Back() <- 2
+		uq.Back() <- 3
+		uq.RemoveUnique(1)
+		uq.Back() <- 1
+		uq.Back() <- 1
+		uq.Back() <- 3
 	}()
 
 	expected = 1
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 	expected = 2
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 	expected = 3
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 	expected = 1
-	got = <-queue.Front()
+	got = <-uq.Front()
 	if got != expected {
 		t.Errorf("Expected %d, got %d", expected, got)
 	}
 
-	if len(queue.Front()) != 0 {
+	if len(uq.Front()) != 0 {
 		t.Errorf("Expected empty channel")
 	}
 }
 
 func Example() {
-	queue := uniqueue.NewUQ[int](2)
+	uq := uniqueue.NewUQ[int](2)
 
 	go func() {
-		queue.Back() <- 1
-		queue.Back() <- 2
-		queue.Back() <- 3
+		uq.Back() <- 1
+		uq.Back() <- 2
+		uq.Back() <- 3
 
 		// these values should not be added because 1 is already on the queue
-		queue.Back() <- 1
-		queue.Back() <- 1
+		uq.Back() <- 1
+		uq.Back() <- 1
 
 		// remove 3 from the unique restriction so it can be added again, once it's added again the unique restriction applies again
-		queue.RemoveUnique(3)
-		queue.Back() <- 3
-		queue.Back() <- 3
+		uq.RemoveUnique(3)
+		uq.Back() <- 3
+		uq.Back() <- 3
 
 		// close the back channel of the queue, this will automatically close the front channel
-		close(queue.Back())
+		close(uq.Back())
 	}()
 
 	// read the unique values from the queue, when the queue is closed this loop will terminate
-	for value := range queue.Front() {
+	for value := range uq.Front() {
 		fmt.Println(value)
 	}
 
 	// the front channel should be closed when the back channel is closed
-	if _, ok := <-queue.Front(); !ok {
+	if _, ok := <-uq.Front(); !ok {
 		fmt.Println("The channel is closed")
 	}
 
