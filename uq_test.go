@@ -132,7 +132,7 @@ func TestRemove(t *testing.T) {
 		uq.Back() <- 1
 		uq.Back() <- 2
 		uq.Back() <- 3
-		uq.RemoveUnique(1)
+		uq.RemoveConstraint(1)
 		uq.Back() <- 1
 		uq.Back() <- 1
 		uq.Back() <- 3
@@ -176,8 +176,8 @@ func Example() {
 		uq.Back() <- 1
 		uq.Back() <- 1
 
-		// remove 3 from the unique restriction so it can be added again, once it's added again the unique restriction applies again
-		uq.RemoveUnique(3)
+		// remove 3 from the unique constraint so it can be added again, once it's added again the unique constraint applies again
+		uq.RemoveConstraint(3)
 		uq.Back() <- 3
 		uq.Back() <- 3
 
