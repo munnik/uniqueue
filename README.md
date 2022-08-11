@@ -10,6 +10,8 @@ Create a queue (go chan) that only contains unique elements (no duplicates). Thi
 
 `uq.Front()` returns a _read only_ channel that can be used to pop values from the queue.
 
+`uq.IgnoreConstraintFor(v T)` ignores the constraint once for the value `v`. Using this method `v` can exist multiple times on a queue. After adding `v` to the queue the constraint is enabled again.
+
 `uq.AddConstraint(v T)` adds the unique constraint for the value `v` from the queue, this can be used to make sure that certain values never get on the queue.
 
 `uq.RemoveConstraint(v T)` removes the unique constraint for the value `v` from the queue, if the value `v` is on the queue it will remain on the queue until it is popped. A new value `w`, where `v == w`, can be added to the queue. After that the unique constraint is applied again. If you want to add the value `x`, where `x == w` you need to call this method again.
@@ -28,8 +30,8 @@ go func() {
   uq.Back() <- 1
   uq.Back() <- 1
 
-  // remove 3 from the unique constraint so it can be added again, once it's added again the unique constraint applies again
-  uq.RemoveConstraint(3)
+  // ignore 3 from the unique constraint so it can be added again, once it's added again the unique constraint is enabled again
+  uq.IgnoreConstraintFor(3)
   uq.Back() <- 3
   uq.Back() <- 3
 

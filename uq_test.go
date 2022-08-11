@@ -134,7 +134,7 @@ func TestChannelUniqueness(t *testing.T) {
 	}
 }
 
-func TestRemove(t *testing.T) {
+func TestIgnoreConstraint(t *testing.T) {
 	var got, expected int
 
 	uq := uniqueue.NewUQ[int](2)
@@ -142,7 +142,7 @@ func TestRemove(t *testing.T) {
 		uq.Back() <- 1
 		uq.Back() <- 2
 		uq.Back() <- 3
-		uq.RemoveConstraint(1)
+		uq.IgnoreConstraintFor(1)
 		uq.Back() <- 1
 		uq.Back() <- 1
 		uq.Back() <- 3
@@ -218,8 +218,8 @@ func Example() {
 		uq.Back() <- 1
 		uq.Back() <- 1
 
-		// remove 3 from the unique constraint so it can be added again, once it's added again the unique constraint applies again
-		uq.RemoveConstraint(3)
+		// ignore 3 from the unique constraint so it can be added again, once it's added again the unique constraint is enabled again
+		uq.IgnoreConstraintFor(3)
 		uq.Back() <- 3
 		uq.Back() <- 3
 
