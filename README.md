@@ -1,14 +1,18 @@
 # uniqueue
 
-Create a queue (go chan) that only contains unique elements (no duplicates). This can be useful when this queue is feeding workers and you want to make sure that the workers don't end up doing double work. It is a very simple queue, with 1 constructor and 3 methods.
+Create a queue (go chan) that only contains unique elements (no duplicates). This can be useful when this queue is feeding workers and you want to make sure that the workers don't end up doing double work. It is a very simple queue, with 1 constructor 1 property and 4 methods.
 
 `uq := uniqueue.NewUQ[T](size int)` constructs an uniqueue of type `T` with a buffer of size `size`. `T` must be `comparable`. This function returns a pointer to the uniqueue.
 
-`uq.Back()` returns a _send only_ channel that can be used to push new values on the queue.
+`uq.AutoRemoveConstraint` is a `bool` property that when enabled automatically removes the constraint for a value `v` when it is popped from the queue.
 
-`uq.Front()` returns a _receive only_ channel that can be used to pop values from the queue.
+`uq.Back()` returns a _write only_ channel that can be used to push new values on the queue.
 
-`uq.RemoveUnique(v T)` removes the unique constraint for the value `v` from the queue, if the value `v` is on the queue it will remain on the queue until it is popped. A new value `w`, where `v == w`, can be added to the queue. After that the unique constraint is applied again. If you want to add the value `x`, where `x == w` you need to call this method again.
+`uq.Front()` returns a _read only_ channel that can be used to pop values from the queue.
+
+`uq.AddConstraint(v T)` adds the unique constraint for the value `v` from the queue, this can be used to make sure that certain values never get on the queue.
+
+`uq.RemoveConstraint(v T)` removes the unique constraint for the value `v` from the queue, if the value `v` is on the queue it will remain on the queue until it is popped. A new value `w`, where `v == w`, can be added to the queue. After that the unique constraint is applied again. If you want to add the value `x`, where `x == w` you need to call this method again.
 
 ## Example
 
